@@ -1,6 +1,7 @@
 import { Routes, Route } from 'react-router-dom';
 import SiteHeader from './components/SiteHeader.jsx';
 import SiteFooter from './components/SiteFooter.jsx';
+import Home from './pages/Home.jsx';
 import Catalog from './pages/Catalog.jsx';
 import PartDetail from './pages/PartDetail.jsx';
 import AdminLogin from './pages/admin/AdminLogin.jsx';
@@ -28,7 +29,8 @@ function Protected({ children }) {
 export default function App() {
   return (
     <Routes>
-      <Route path="/" element={<PublicLayout><Catalog /></PublicLayout>} />
+      <Route path="/" element={<PublicLayout><Home /></PublicLayout>} />
+      <Route path="/catalog" element={<PublicLayout><Catalog /></PublicLayout>} />
       <Route path="/parts/:id" element={<PublicLayout><PartDetail /></PublicLayout>} />
 
       <Route path="/admin/login" element={<AdminLogin />} />

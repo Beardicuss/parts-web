@@ -39,11 +39,10 @@ export default function Catalog() {
           setHasMore(data.length === PAGE_SIZE);
         })
         .finally(() => setLoading(false));
-    }, 250); // debounce search input
+    }, 250);
     return () => clearTimeout(handle);
   }, [filters]);
 
-  // Load More handler
   const loadMore = () => {
     if (loadingMore || !hasMore) return;
     setLoadingMore(true);
@@ -64,22 +63,12 @@ export default function Catalog() {
   };
 
   return (
-    <>
-      <div className="catalog-hero">
-        <div className="container">
-          <span className="hero-eyebrow">{t('catalog.eyebrow')}</span>
-          <h1 className="hero-title">{t('catalog.title')}</h1>
-          <p className="hero-subtitle">{t('catalog.subtitle')}</p>
-        </div>
-        <div className="hero-beam" aria-hidden="true" />
-      </div>
+    <div className="container catalog-body" style={{ paddingTop: '40px' }}>
+      <h1 className="section-title" style={{ marginBottom: '24px' }}>{t('nav.catalog')}</h1>
 
-      <CategoryShowcase categories={categories} onSelect={handleCategorySelect} />
+      <CategoryShowcase categories={categories} onSelect={handleCategorySelect} activeCategoryId={filters.category_id} />
 
-      <div className="container catalog-body" ref={gridRef}>
-        <span className="section-eyebrow">{t('catalog.allPartsEyebrow')}</span>
-        <h2 className="section-title">{t('catalog.allPartsTitle')}</h2>
-
+      <div ref={gridRef}>
         <FilterBar
           filters={filters}
           onChange={setFilters}
@@ -108,6 +97,8 @@ export default function Catalog() {
           </div>
         )}
       </div>
-    </>
+    </div>
   );
 }
+
+

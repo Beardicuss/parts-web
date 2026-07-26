@@ -9,7 +9,7 @@ export default function SiteHeader() {
 
   return (
     <header className="site-header">
-      <div className="container">
+      <div className="container header-inner">
         <Link to="/" className="brand">
           <img src="/logo.webp" alt="SebaTech" className="brand-logo" />
           <div className="brand-text">
@@ -19,11 +19,11 @@ export default function SiteHeader() {
         </Link>
         <nav className="main-nav">
           <Link to="/" className="nav-link">{t('nav.main')}</Link>
-          <Link to="/" className="nav-link">{t('nav.catalog')}</Link>
+          <Link to="/catalog" className="nav-link">{t('nav.catalog')}</Link>
           <a href="#" className="nav-link">{t('nav.services')}</a>
           <a href="#" className="nav-link">{t('nav.about')}</a>
         </nav>
-        <div className="header-nav" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+        <div className="header-controls">
           <button 
             className="theme-toggle-btn" 
             onClick={toggleTheme} 
