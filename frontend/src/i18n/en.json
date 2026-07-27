@@ -22,7 +22,6 @@
   "catalog.allPartsTitle": "Browse all parts",
   "catalog.loadMore": "Load More Parts",
   "catalog.loadingMore": "Loading...",
-
   "feature.search.title": "Fast Search",
   "feature.search.desc": "Find parts instantly by code, brand, or category",
   "feature.range.title": "Wide Selection",
@@ -31,7 +30,6 @@
   "feature.updated.desc": "New parts added to the catalog regularly",
   "feature.bilingual.title": "EN / KA",
   "feature.bilingual.desc": "Full catalog available in English and Georgian",
-
   "categoryShowcase.eyebrow": "Browse By Category",
   "categoryShowcase.title": "Find Your Part Faster",
   "categoryShowcase.viewParts": "View Parts",
@@ -39,7 +37,7 @@
   "detail.specifications": "Specifications",
   "detail.condition": "Condition",
   "detail.compatibility": "Compatibility",
-  "footer.desc": "Your trusted source for premium auto parts and accessories. We deliver quality and performance.",
+  "footer.desc": "100% quality and reliability. A wide selection of tested, original used auto parts. 40% cheaper than at service centers.",
   "footer.navigation": "Navigation",
   "footer.contact": "Contact Us",
   "footer.address": "Tbilisi, Georgia",
@@ -54,20 +52,17 @@
   "detail.descriptionTitle": "Description",
   "detail.notFound": "Part not found.",
   "detail.contactUs": "Contact Us",
-
   "admin.login.title": "Admin sign in",
   "admin.login.username": "Email",
   "admin.login.password": "Password",
   "admin.login.submit": "Sign in",
   "admin.login.error": "Wrong username or password. Please try again.",
-
   "admin.nav.home": "Home",
   "admin.nav.parts": "Parts",
   "admin.nav.brands": "Brands",
   "admin.nav.categories": "Categories",
   "admin.nav.viewSite": "View website",
   "admin.nav.logout": "Log out",
-
   "admin.home.title": "Welcome back",
   "admin.home.subtitle": "What would you like to do?",
   "admin.home.partsTile": "Parts",
@@ -77,18 +72,15 @@
   "admin.home.categoriesTile": "Categories",
   "admin.home.categoriesDesc": "Manage the list of part categories",
   "admin.home.quickAdd": "+ Add a new part",
-
   "admin.parts.title": "Parts",
   "admin.parts.add": "+ Add new part",
   "admin.parts.empty": "No parts yet. Click \"Add new part\" to create your first one.",
   "admin.parts.searchPlaceholder": "Search parts...",
   "admin.parts.noImage": "No photo",
-
   "admin.edit": "Edit",
   "admin.delete": "Delete",
   "admin.deleteConfirm": "Delete this? This cannot be undone.",
   "admin.back": "Back",
-
   "admin.form.addTitle": "Add new part",
   "admin.form.editTitle": "Edit part",
   "admin.form.basics": "Basic info",
@@ -121,7 +113,6 @@
   "admin.form.newBrandPromptKa": "Brand name in Georgian:",
   "admin.form.newCategoryPromptEn": "Category name in English:",
   "admin.form.newCategoryPromptKa": "Category name in Georgian:",
-
   "admin.ref.brandsTitle": "Brands",
   "admin.ref.brandsSubtitle": "These show up in the catalog filters and when adding a part.",
   "admin.ref.categoriesTitle": "Categories",
@@ -131,12 +122,10 @@
   "admin.ref.nameKa": "Name in Georgian",
   "admin.ref.empty": "Nothing here yet. Add your first one above.",
   "admin.ref.inUseHint": "Used by parts already, so it can't show every field — just rename it below.",
-
   "toast.saved": "Saved successfully",
   "toast.deleted": "Deleted",
   "toast.error": "Something went wrong. Please try again.",
   "toast.added": "Added",
-
   "widget.call": "Call Us",
   "widget.faq": "FAQ",
   "faq.title": "Frequently Asked Questions",
