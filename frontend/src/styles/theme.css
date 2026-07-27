@@ -516,24 +516,48 @@ textarea {
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin-bottom: 20px;
-  color: var(--text);
+  color: var(--text); /* Ensure title is bright */
 }
 
 .footer-nav {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 4px;
 }
 
 .footer-nav a {
   color: var(--text-muted);
   text-decoration: none;
   font-size: 14px;
-  transition: color 0.2s ease;
+  line-height: 2.2;
+  transition: all 0.2s ease;
+  position: relative;
+  padding-left: 0;
+  display: inline-block;
+  width: fit-content;
 }
 
 .footer-nav a:hover {
-  color: var(--accent);
+  color: var(--text);
+  padding-left: 12px;
+}
+
+.footer-nav a::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 0;
+  width: 3px;
+  background: var(--accent);
+  transition: all 0.2s ease;
+  opacity: 0;
+}
+
+.footer-nav a:hover::before {
+  height: 60%;
+  opacity: 1;
 }
 
 .footer-contact {
