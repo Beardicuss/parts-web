@@ -135,5 +135,18 @@
   "toast.saved": "Saved successfully",
   "toast.deleted": "Deleted",
   "toast.error": "Something went wrong. Please try again.",
-  "toast.added": "Added"
+  "toast.added": "Added",
+
+  "widget.call": "Call Us",
+  "widget.faq": "FAQ",
+  "faq.title": "Frequently Asked Questions",
+  "faq.close": "Close",
+  "faq.q1": "Do you offer original parts or aftermarket?",
+  "faq.a1": "We offer both! We clearly label whether a part is original (OEM) or a high-quality aftermarket alternative, so you can choose what best fits your budget and needs.",
+  "faq.q2": "How long does shipping take?",
+  "faq.a2": "Orders placed before 2 PM are typically shipped the same day. Standard delivery within Tbilisi takes 1-2 business days, and regional delivery takes 2-4 business days.",
+  "faq.q3": "What is your return policy?",
+  "faq.a3": "We accept returns within 14 days of purchase, provided the part is unused and in its original packaging. Electrical parts cannot be returned once installed.",
+  "faq.q4": "Do you help with part installation?",
+  "faq.a4": "While we are primarily a parts supplier, we have partnered with several top-rated service centers across the country and can recommend a trusted mechanic for installation."
 }

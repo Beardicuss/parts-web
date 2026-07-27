@@ -1,6 +1,7 @@
 import { Routes, Route } from 'react-router-dom';
 import SiteHeader from './components/SiteHeader.jsx';
 import SiteFooter from './components/SiteFooter.jsx';
+import FloatingWidgets from './components/FloatingWidgets.jsx';
 import Home from './pages/Home.jsx';
 import Catalog from './pages/Catalog.jsx';
 import PartDetail from './pages/PartDetail.jsx';
@@ -18,6 +19,7 @@ function PublicLayout({ children }) {
       <SiteHeader />
       <main className="main-content">{children}</main>
       <SiteFooter />
+      <FloatingWidgets />
     </div>
   );
 }
