@@ -1,4 +1,4 @@
-import { createContext, useContext, useMemo, useState } from 'react';
+import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import en from './en.json';
 import ka from './ka.json';
 
@@ -6,7 +6,15 @@ const dictionaries = { en, ka };
 const LangContext = createContext(null);
 
 export function LangProvider({ children }) {
-  const [lang, setLang] = useState(() => localStorage.getItem('catalog_lang') || 'en');
+  const [lang, setLang] = useState(() => {
+    const saved = localStorage.getItem('catalog_lang');
+    if (saved === 'en' || saved === 'ka') return saved;
+    return navigator.language?.toLowerCase().startsWith('ka') ? 'ka' : 'en';
+  });
+
+  useEffect(() => {
+    document.documentElement.lang = lang;
+  }, [lang]);
 
   const setAndPersist = (next) => {
     setLang(next);

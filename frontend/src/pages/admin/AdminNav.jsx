@@ -26,16 +26,28 @@ export default function AdminNav() {
         </Link>
 
         <nav className="admin-tabs">
-          <Link className={`admin-tab ${isActive('/admin') && location.pathname === '/admin' ? 'active' : ''}`} to="/admin">
+          <Link
+            className={`admin-tab ${isActive('/admin') && location.pathname === '/admin' ? 'active' : ''}`}
+            to="/admin"
+          >
             {t('admin.nav.home')}
           </Link>
-          <Link className={`admin-tab ${isActive('/admin/parts') ? 'active' : ''}`} to="/admin/parts">
+          <Link
+            className={`admin-tab ${isActive('/admin/parts') ? 'active' : ''}`}
+            to="/admin/parts"
+          >
             {t('admin.nav.parts')}
           </Link>
-          <Link className={`admin-tab ${isActive('/admin/brands') ? 'active' : ''}`} to="/admin/brands">
+          <Link
+            className={`admin-tab ${isActive('/admin/brands') ? 'active' : ''}`}
+            to="/admin/brands"
+          >
             {t('admin.nav.brands')}
           </Link>
-          <Link className={`admin-tab ${isActive('/admin/categories') ? 'active' : ''}`} to="/admin/categories">
+          <Link
+            className={`admin-tab ${isActive('/admin/categories') ? 'active' : ''}`}
+            to="/admin/categories"
+          >
             {t('admin.nav.categories')}
           </Link>
         </nav>

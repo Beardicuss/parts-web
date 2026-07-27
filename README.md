@@ -14,7 +14,8 @@
 
 ```
 frontend/           React SPA: публичный каталог + /admin панель
-supabase/schema.sql  SQL-скрипт: таблицы, права доступа, storage bucket для фото
+supabase/migrations/ Версионированные SQL-миграции (запускать по имени)
+supabase/seed_all.sql Сгенерированный повторяемый seed каталога
 ```
 
 ## Разовая настройка (делаешь один раз при сдаче проекта)
@@ -28,16 +29,19 @@ supabase/schema.sql  SQL-скрипт: таблицы, права доступа
 ### 2. Накатить схему базы данных
 
 1. В панели Supabase открой **SQL Editor** → **New query**
-2. Скопируй содержимое файла `supabase/schema.sql` из этого репозитория, вставь и нажми **Run**
-3. Это создаст таблицы `parts`, `brands`, `categories`, права доступа (публичное чтение,
+2. По очереди запусти файлы из `supabase/migrations/` в порядке имени
+3. Запусти `supabase/seed_all.sql`, затем `supabase/tests/001_catalog_schema.sql`
+4. Это создаст таблицы `parts`, `brands`, `categories`, права доступа (публичное чтение,
    запись только для авторизованных) и storage bucket `part-images` для фото
 
 ### 3. Создать аккаунт админа
 
 1. **Authentication** → **Users** → **Add user** → **Create new user**
 2. Укажи email и пароль клиента — это и есть логин в `/admin`
-3. Зайди в **Authentication** → **Providers** → **Email** и отключи **"Allow new users to sign up"**,
-   чтобы никто посторонний не мог сам себе создать доступ к админке
+3. Добавь UUID пользователя в `public.admin_users` по инструкции
+   `docs/PHASE_2_SECURITY_OPERATIONS.md`
+4. Отключи публичную регистрацию и все неиспользуемые провайдеры
+5. При первом входе клиент настроит обязательный TOTP-код в приложении-аутентификаторе
 
 ### 4. Достать ключи для frontend
 
@@ -58,7 +62,11 @@ cp .env.example .env
 ```
 VITE_SUPABASE_URL=https://your-project-ref.supabase.co
 VITE_SUPABASE_ANON_KEY=your-anon-public-key
+VITE_USE_MOCK_DATA=false
 ```
+
+Для локальной работы без Supabase можно явно поставить
+`VITE_USE_MOCK_DATA=true`. Production-сборка всегда исключает mock-каталог.
 
 Запуск:
 

@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { useLang } from '../../i18n/LangContext.jsx';
 import { useToast } from '../../components/ToastContext.jsx';
 import AdminNav from './AdminNav.jsx';
+import AccessibleDialog from '../../components/AccessibleDialog.jsx';
+import { API_ERROR_CODES } from '../../apiErrors.js';
 
 /**
  * Generic "simple list" manager for reference data (brands, categories).
@@ -17,23 +19,37 @@ export default function AdminReferenceList({ titleKey, subtitleKey, api: entityA
   const [newKa, setNewKa] = useState('');
   const [drafts, setDrafts] = useState({});
   const [adding, setAdding] = useState(false);
+  const [error, setError] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deleting, setDeleting] = useState(false);
+  const [formError, setFormError] = useState('');
 
   const load = () => {
     setLoading(true);
+    setError(false);
     entityApi
       .list()
       .then((data) => {
         setItems(data);
-        setDrafts(Object.fromEntries(data.map((i) => [i.id, { name_en: i.name_en, name_ka: i.name_ka }])));
+        setDrafts(
+          Object.fromEntries(data.map((i) => [i.id, { name_en: i.name_en, name_ka: i.name_ka }]))
+        );
       })
+      .catch(() => setError(true))
       .finally(() => setLoading(false));
   };
 
+  // The page-level adapter methods remain stable for this mounted list.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(load, []);
 
   const handleAdd = async (e) => {
     e.preventDefault();
-    if (!newEn.trim() || !newKa.trim()) return;
+    setFormError('');
+    if (!newEn.trim() || !newKa.trim()) {
+      setFormError(t('admin.validation.bothNames'));
+      return;
+    }
     setAdding(true);
     try {
       await entityApi.create({ name_en: newEn.trim(), name_ka: newKa.trim() });
@@ -41,8 +57,12 @@ export default function AdminReferenceList({ titleKey, subtitleKey, api: entityA
       setNewKa('');
       showToast(t('toast.added'));
       load();
-    } catch {
-      showToast(t('toast.error'), 'error');
+    } catch (addError) {
+      setFormError(
+        addError.code === API_ERROR_CODES.CONFLICT
+          ? t('admin.validation.duplicateReference')
+          : t('toast.error')
+      );
     } finally {
       setAdding(false);
     }
@@ -58,14 +78,18 @@ export default function AdminReferenceList({ titleKey, subtitleKey, api: entityA
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm(t('admin.deleteConfirm'))) return;
+  const handleDelete = async () => {
+    if (!deleteTarget || deleting) return;
+    setDeleting(true);
     try {
-      await entityApi.remove(id);
+      await entityApi.remove(deleteTarget.id);
       showToast(t('toast.deleted'));
       load();
     } catch {
       showToast(t('toast.error'), 'error');
+    } finally {
+      setDeleting(false);
+      setDeleteTarget(null);
     }
   };
 
@@ -93,36 +117,71 @@ export default function AdminReferenceList({ titleKey, subtitleKey, api: entityA
             {t('admin.ref.addButton')}
           </button>
         </form>
+        {formError && <div className="error-text">{formError}</div>}
 
-        {!loading && items.length === 0 && <div className="empty-state">{t('admin.ref.empty')}</div>}
+        {loading && <div className="empty-state">{t('catalog.loading')}</div>}
+        {!loading && error && (
+          <div className="empty-state">
+            <p>{t('admin.ref.loadError')}</p>
+            <button className="btn btn-primary" onClick={load}>
+              {t('catalog.retry')}
+            </button>
+          </div>
+        )}
+        {!loading && !error && items.length === 0 && (
+          <div className="empty-state">{t('admin.ref.empty')}</div>
+        )}
 
-        <div className="ref-list">
+        <div className="ref-list" hidden={loading || error}>
           {items.map((item) => (
             <div className="ref-row" key={item.id}>
               <input
                 className="input"
                 value={drafts[item.id]?.name_en ?? ''}
                 onChange={(e) =>
-                  setDrafts({ ...drafts, [item.id]: { ...drafts[item.id], name_en: e.target.value } })
+                  setDrafts({
+                    ...drafts,
+                    [item.id]: { ...drafts[item.id], name_en: e.target.value }
+                  })
                 }
               />
               <input
                 className="input"
                 value={drafts[item.id]?.name_ka ?? ''}
                 onChange={(e) =>
-                  setDrafts({ ...drafts, [item.id]: { ...drafts[item.id], name_ka: e.target.value } })
+                  setDrafts({
+                    ...drafts,
+                    [item.id]: { ...drafts[item.id], name_ka: e.target.value }
+                  })
                 }
               />
               <button className="btn btn-outline" onClick={() => handleSaveRow(item.id)}>
                 {t('admin.form.save')}
               </button>
-              <button className="btn btn-danger" onClick={() => handleDelete(item.id)}>
+              <button
+                className="btn btn-danger"
+                onClick={() => setDeleteTarget(item)}
+                disabled={deleting}
+              >
                 {t('admin.delete')}
               </button>
             </div>
           ))}
         </div>
       </div>
+      <AccessibleDialog
+        open={Boolean(deleteTarget)}
+        title={t('admin.deleteTitle')}
+        confirmLabel={deleting ? t('admin.deleting') : t('admin.delete')}
+        cancelLabel={t('admin.form.cancel')}
+        destructive
+        busy={deleting}
+        onCancel={() => setDeleteTarget(null)}
+        onConfirm={handleDelete}
+      >
+        <p>{t('admin.deleteConfirm')}</p>
+        {deleteTarget && <strong>{deleteTarget.name_en}</strong>}
+      </AccessibleDialog>
     </div>
   );
 }

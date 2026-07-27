@@ -11,6 +11,10 @@ node_modules/
 dist/
 dist-ssr/
 *.local
+coverage/
+playwright-report/
+test-results/
+.playwright-cli/
 
 # Editor directories and files
 .vscode/*
@@ -26,3 +30,4 @@ dist-ssr/
 # Env
 .env
 .env.*
+!.env.example

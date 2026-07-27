@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from './AuthContext.jsx';
 import { useLang } from '../../i18n/LangContext.jsx';
 
@@ -7,6 +7,7 @@ export default function AdminLogin() {
   const { login } = useAuth();
   const { t } = useLang();
   const navigate = useNavigate();
+  const location = useLocation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -17,8 +18,8 @@ export default function AdminLogin() {
     setError('');
     setSubmitting(true);
     try {
-      await login(email, password);
-      navigate('/admin');
+      const authorization = await login(email, password);
+      navigate(authorization.mfaStatus === 'verified' ? '/admin' : '/admin/mfa');
     } catch {
       setError(t('admin.login.error'));
     } finally {
@@ -30,9 +31,15 @@ export default function AdminLogin() {
     <div className="container">
       <form className="login-card" onSubmit={handleSubmit}>
         <h1>{t('admin.login.title')}</h1>
+        {location.state?.sessionExpired && (
+          <div className="error-text" role="alert">
+            {t('admin.sessionExpired')}
+          </div>
+        )}
         <div className="field">
-          <label>{t('admin.login.username')}</label>
+          <label htmlFor="admin-email">{t('admin.login.username')}</label>
           <input
+            id="admin-email"
             className="input input-lg"
             type="email"
             value={email}
@@ -42,8 +49,9 @@ export default function AdminLogin() {
           />
         </div>
         <div className="field">
-          <label>{t('admin.login.password')}</label>
+          <label htmlFor="admin-password">{t('admin.login.password')}</label>
           <input
+            id="admin-password"
             className="input input-lg"
             type="password"
             value={password}
@@ -51,8 +59,17 @@ export default function AdminLogin() {
             required
           />
         </div>
-        {error && <div className="error-text">{error}</div>}
-        <button className="btn btn-primary btn-lg" type="submit" disabled={submitting} style={{ width: '100%', marginTop: 8 }}>
+        {error && (
+          <div className="error-text" role="alert">
+            {error}
+          </div>
+        )}
+        <button
+          className="btn btn-primary btn-lg"
+          type="submit"
+          disabled={submitting}
+          style={{ width: '100%', marginTop: 8 }}
+        >
           {t('admin.login.submit')}
         </button>
       </form>
