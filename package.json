@@ -1,0 +1,23 @@
+{
+  "name": "parts-catalog-workspace",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "npm --prefix frontend run dev --",
+    "build": "npm --prefix frontend run build",
+    "preview": "npm --prefix frontend run preview --",
+    "lint": "npm --prefix frontend run lint",
+    "format": "npm --prefix frontend run format",
+    "format:check": "npm --prefix frontend run format:check",
+    "test": "npm --prefix frontend run test",
+    "test:e2e": "npm --prefix frontend run test:e2e",
+    "verify": "npm --prefix frontend run lint && npm --prefix frontend run test && npm --prefix frontend run build && npm --prefix frontend run build:verify",
+    "db:check": "npm --prefix frontend run db:check",
+    "images:generate": "npm --prefix frontend run images:generate",
+    "perf:budget": "npm --prefix frontend run perf:budget",
+    "audit": "npm --prefix frontend run audit"
+  },
+  "engines": {
+    "node": ">=24.11.0 <25"
+  }
+}

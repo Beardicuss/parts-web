@@ -40,7 +40,7 @@ export default function SiteFooter() {
               <Link to="/">{t('nav.main')}</Link>
               <Link to="/catalog">{t('nav.catalog')}</Link>
               <Link to="/services">{t('nav.services')}</Link>
-              <a href="#">{t('nav.about')}</a>
+              <Link to="/about">{t('nav.about')}</Link>
             </nav>
           </div>
 

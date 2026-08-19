@@ -34,9 +34,9 @@ export default function SiteHeader() {
           <Link to="/services" className="nav-link">
             {t('nav.services')}
           </Link>
-          <a href="#" className="nav-link">
+          <Link to="/about" className="nav-link">
             {t('nav.about')}
-          </a>
+          </Link>
         </nav>
         <div className="header-controls">
           <button

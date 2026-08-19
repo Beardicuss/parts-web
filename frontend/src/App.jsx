@@ -12,6 +12,7 @@ import LoadingSkeleton from './components/LoadingSkeleton.jsx';
 
 const PartDetail = lazy(() => import('./pages/PartDetail.jsx'));
 const Services = lazy(() => import('./pages/Services.jsx'));
+const About = lazy(() => import('./pages/About.jsx'));
 const AdminLogin = lazy(() => import('./pages/admin/AdminLogin.jsx'));
 const AdminMfa = lazy(() => import('./pages/admin/AdminMfa.jsx'));
 const AdminHome = lazy(() => import('./pages/admin/AdminHome.jsx'));
@@ -60,6 +61,8 @@ function DocumentMetadata() {
             ? 'meta.part'
             : pathname.startsWith('/services')
               ? 'meta.services'
+              : pathname.startsWith('/about')
+                ? 'meta.about'
               : 'meta.notFound';
     document.title = `${t(key)} | SEBATECH`;
     document
@@ -107,6 +110,16 @@ export default function App() {
             <PublicLayout>
               <Deferred>
                 <Services />
+              </Deferred>
+            </PublicLayout>
+          }
+        />
+        <Route
+          path="/about"
+          element={
+            <PublicLayout>
+              <Deferred>
+                <About />
               </Deferred>
             </PublicLayout>
           }

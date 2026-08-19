@@ -20,6 +20,11 @@
   --font-mono: 'Cascadia Mono', 'SFMono-Regular', Consolas, monospace;
 }
 
+html:lang(ka) {
+  --font-body: 'Segoe UI', Arial, sans-serif;
+  --font-display: 'Segoe UI', Arial, sans-serif;
+}
+
 .dialog-backdrop {
   position: fixed;
   inset: 0;
@@ -191,7 +196,9 @@ body {
 :lang(ka) .btn,
 :lang(ka) .nav-link {
   letter-spacing: 0;
-  overflow-wrap: anywhere;
+  overflow-wrap: normal;
+  word-break: normal;
+  hyphens: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -2231,6 +2238,42 @@ textarea.input {
   line-height: 1.7;
 }
 
+.service-feature-list {
+  margin: 20px 0 0;
+  padding: 18px 0 0;
+  display: grid;
+  gap: 9px;
+  border-top: 1px solid var(--border-soft);
+  list-style: none;
+}
+
+.service-feature-list li {
+  position: relative;
+  padding-left: 18px;
+  color: var(--text);
+  line-height: 1.5;
+}
+
+.service-feature-list li::before {
+  position: absolute;
+  content: '';
+  top: 0.62em;
+  left: 0;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.services-compatibility-note {
+  margin: 24px 0 0;
+  padding: 18px 22px;
+  color: var(--text-muted);
+  border-left: 3px solid var(--accent);
+  background: var(--surface-raised);
+  line-height: 1.65;
+}
+
 .services-catalog-link {
   margin-top: 24px;
   padding: 24px 28px;
@@ -2246,6 +2289,266 @@ textarea.input {
 .services-catalog-link p {
   margin: 0;
   font-weight: 600;
+}
+
+/* About page */
+.about-hero {
+  position: relative;
+  padding: 96px 0;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 82% 20%, color-mix(in srgb, var(--accent) 18%, transparent), transparent 28%),
+    linear-gradient(135deg, var(--bg), var(--surface));
+}
+
+.about-hero::after {
+  position: absolute;
+  content: '';
+  right: -8vw;
+  bottom: -36%;
+  width: 42vw;
+  height: 42vw;
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+  border-radius: 50%;
+}
+
+.about-hero-grid {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(300px, 0.65fr);
+  align-items: center;
+  gap: 72px;
+}
+
+.about-hero-copy h1 {
+  max-width: 800px;
+  margin: 10px 0 22px;
+  font-family: var(--font-display);
+  font-size: clamp(46px, 7vw, 78px);
+  line-height: 0.98;
+  text-transform: uppercase;
+}
+
+.about-hero-copy p {
+  max-width: 720px;
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 18px;
+  line-height: 1.75;
+}
+
+.about-reach-card {
+  padding: 34px;
+  border: 1px solid var(--border);
+  border-top: 3px solid var(--accent);
+  background: color-mix(in srgb, var(--surface) 90%, transparent);
+}
+
+.about-reach-label,
+.about-strength-number {
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.about-reach-card h2 {
+  margin: 12px 0 24px;
+  font-family: var(--font-display);
+  font-size: 30px;
+  line-height: 1.1;
+}
+
+.about-market-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.about-market-list span {
+  padding: 8px 11px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--text-muted);
+  background: var(--surface-raised);
+  font-size: 12px;
+}
+
+.about-story-section {
+  padding: 84px 0 96px;
+}
+
+.about-story-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  gap: 72px;
+}
+
+.about-story-grid h2 {
+  max-width: 480px;
+  margin: 10px 0 0;
+  font-family: var(--font-display);
+  font-size: clamp(36px, 5vw, 56px);
+  line-height: 1.05;
+  text-transform: uppercase;
+}
+
+.about-story-copy {
+  display: grid;
+  gap: 20px;
+}
+
+.about-story-copy p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 16px;
+  line-height: 1.8;
+}
+
+.about-strength-grid {
+  margin-top: 64px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.about-strength-card {
+  min-height: 240px;
+  padding: 30px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.about-strength-card h3 {
+  margin: 40px 0 12px;
+  font-family: var(--font-display);
+  font-size: 24px;
+  line-height: 1.15;
+}
+
+.about-strength-card p {
+  margin: 0;
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+
+.about-cta {
+  margin-top: 64px;
+  padding: 34px 38px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+  border-left: 4px solid var(--accent);
+  background: var(--accent-muted);
+}
+
+.about-cta h2 {
+  margin: 0 0 8px;
+  font-family: var(--font-display);
+  font-size: 30px;
+}
+
+.about-cta p {
+  margin: 0;
+  color: var(--text-muted);
+}
+
+.about-cta-actions {
+  display: flex;
+  flex-shrink: 0;
+  gap: 10px;
+}
+
+/* Georgian glyphs are naturally wider and need a calmer display scale than
+   the condensed Latin headings used by the English version. */
+html:lang(ka) .about-hero-copy h1 {
+  max-width: 760px;
+  font-size: clamp(38px, 4.5vw, 56px);
+  font-weight: 750;
+  line-height: 1.16;
+  letter-spacing: -0.025em;
+  text-transform: none;
+}
+
+html:lang(ka) .about-hero-copy p {
+  max-width: 740px;
+  font-size: 17px;
+  line-height: 1.8;
+}
+
+html:lang(ka) .about-reach-card h2 {
+  font-size: 25px;
+  font-weight: 700;
+  line-height: 1.35;
+  letter-spacing: -0.015em;
+}
+
+html:lang(ka) .about-story-grid h2 {
+  max-width: 520px;
+  font-size: clamp(32px, 3.5vw, 44px);
+  font-weight: 750;
+  line-height: 1.22;
+  letter-spacing: -0.025em;
+  text-transform: none;
+}
+
+html:lang(ka) .about-story-copy p {
+  font-size: 16px;
+  line-height: 1.9;
+}
+
+html:lang(ka) .about-strength-card h3,
+html:lang(ka) .about-cta h2 {
+  font-weight: 700;
+  line-height: 1.35;
+  letter-spacing: -0.015em;
+}
+
+html:lang(ka) .services-hero-inner {
+  max-width: 820px;
+}
+
+html:lang(ka) .services-hero h1 {
+  max-width: 800px;
+  font-size: clamp(40px, 4.6vw, 58px);
+  font-weight: 750;
+  line-height: 1.18;
+  letter-spacing: -0.025em;
+}
+
+html:lang(ka) .services-hero p {
+  max-width: 700px;
+  font-size: 17px;
+  line-height: 1.8;
+}
+
+html:lang(ka) .service-detail-card h2 {
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.4;
+  letter-spacing: -0.015em;
+}
+
+html:lang(ka) .services-promo-content {
+  padding: 46px;
+}
+
+html:lang(ka) .services-promo-content h2 {
+  font-size: clamp(32px, 3.2vw, 42px);
+  font-weight: 750;
+  line-height: 1.24;
+  letter-spacing: -0.025em;
+}
+
+html:lang(ka) .services-promo-content p {
+  line-height: 1.8;
+}
+
+html:lang(ka) :is(.hero-eyebrow, .section-eyebrow, .about-reach-label) {
+  letter-spacing: 0.035em;
 }
 
 @media (max-width: 900px) {
@@ -2279,6 +2582,16 @@ textarea.input {
 
   .services-promo-content {
     padding: 40px;
+  }
+
+  .about-hero-grid,
+  .about-story-grid {
+    grid-template-columns: 1fr;
+    gap: 42px;
+  }
+
+  .about-strength-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -2353,6 +2666,65 @@ textarea.input {
 
   .services-catalog-link {
     align-items: stretch;
+    flex-direction: column;
+  }
+
+  .about-hero {
+    padding: 72px 0;
+  }
+
+  .about-hero-grid,
+  .about-story-grid {
+    gap: 34px;
+  }
+
+  html:lang(ka) .about-hero-copy h1 {
+    font-size: clamp(34px, 10vw, 44px);
+    line-height: 1.2;
+  }
+
+  html:lang(ka) .about-story-grid h2 {
+    font-size: clamp(30px, 8vw, 38px);
+  }
+
+  html:lang(ka) .services-hero h1 {
+    font-size: clamp(34px, 9vw, 44px);
+    line-height: 1.22;
+  }
+
+  html:lang(ka) .services-promo-content {
+    padding: 30px 24px 34px;
+  }
+
+  html:lang(ka) .services-promo-content h2 {
+    font-size: clamp(30px, 8.5vw, 38px);
+  }
+
+  .about-reach-card {
+    padding: 26px 22px;
+  }
+
+  .about-story-section {
+    padding: 62px 0 72px;
+  }
+
+  .about-strength-grid {
+    margin-top: 44px;
+    grid-template-columns: 1fr;
+  }
+
+  .about-strength-card {
+    min-height: 0;
+  }
+
+  .about-cta {
+    margin-top: 44px;
+    padding: 28px 24px;
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .about-cta-actions {
     flex-direction: column;
   }
 }
