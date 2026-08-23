@@ -26,15 +26,6 @@ export default function Home() {
 
   return (
     <>
-      <div className="catalog-hero">
-        <div className="container">
-          <span className="hero-eyebrow">{t('catalog.eyebrow')}</span>
-          <h1 className="hero-title">{t('catalog.title')}</h1>
-          <p className="hero-subtitle">{t('catalog.subtitle')}</p>
-        </div>
-        <div className="hero-beam" aria-hidden="true" />
-      </div>
-
       <HomeCategoryGrid />
 
       <div className="container catalog-body" style={{ paddingTop: '60px', paddingBottom: '80px' }}>

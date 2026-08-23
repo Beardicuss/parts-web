@@ -34,9 +34,9 @@ export default function HomeCategoryGrid() {
       <div className="container">
         <div className="section-heading centered">
           <span className="section-eyebrow">{t('home.categoriesEyebrow')}</span>
-          <h2 id="home-categories-title" className="section-title">
+          <h1 id="home-categories-title" className="section-title">
             {t('home.categoriesTitle')}
-          </h2>
+          </h1>
           <p className="section-description">{t('home.categoriesDescription')}</p>
         </div>
 

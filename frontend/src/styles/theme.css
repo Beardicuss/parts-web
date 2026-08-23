@@ -2176,7 +2176,7 @@ textarea.input {
       color-mix(in srgb, var(--bg) 94%, transparent) 34%,
       color-mix(in srgb, var(--bg) 50%, transparent)
     ),
-    url('/services/services-bg.webp') center/cover no-repeat;
+    url('/services/services-hero.webp') center/cover no-repeat;
 }
 
 .services-hero-inner {
