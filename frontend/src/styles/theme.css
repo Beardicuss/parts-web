@@ -1154,7 +1154,7 @@ textarea {
 .admin-header {
   border-bottom: 1px solid var(--border);
   background: var(--surface);
-  padding: 16px 0;
+  padding: 0;
 }
 
 .login-card {
@@ -1285,7 +1285,33 @@ textarea.input {
   justify-content: space-between;
   gap: 24px;
   flex-wrap: wrap;
-  padding: 14px 0;
+  min-height: 88px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+.admin-header .brand {
+  flex: 0 0 auto;
+}
+
+.admin-header .brand-logo {
+  height: 64px;
+}
+
+.admin-header .brand-name {
+  font-size: 20px;
+}
+
+.admin-header .brand-tagline {
+  font-size: 11px;
+}
+
+.admin-header-controls {
+  gap: 12px;
+}
+
+.admin-auth-header .admin-header-inner {
+  flex-wrap: nowrap;
 }
 
 .admin-tabs {
@@ -1549,6 +1575,7 @@ textarea.input {
   .admin-tabs {
     order: 3;
     width: 100%;
+    justify-content: center;
   }
 
   .tile-grid {
@@ -1602,7 +1629,45 @@ textarea.input {
 
   .admin-header-inner {
     gap: 12px;
-    padding: 6px 0;
+    min-height: 0;
+    padding-top: 8px;
+    padding-bottom: 8px;
+  }
+
+  .admin-header .brand-logo {
+    height: 56px;
+  }
+
+  .admin-header .brand-name {
+    font-size: 17px;
+  }
+
+  .admin-header .brand-tagline {
+    font-size: 9px;
+  }
+
+  .admin-header-controls {
+    margin-left: auto;
+    gap: 8px;
+  }
+
+  .admin-auth-header .admin-header-inner {
+    flex-wrap: wrap;
+  }
+
+  .admin-header-controls .btn {
+    padding: 6px 9px;
+  }
+
+  .admin-tabs {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    padding-bottom: 2px;
+  }
+
+  .admin-tab {
+    flex: 0 0 auto;
   }
 
   .brand {
@@ -2297,7 +2362,11 @@ textarea.input {
   padding: 96px 0;
   overflow: hidden;
   background:
-    radial-gradient(circle at 82% 20%, color-mix(in srgb, var(--accent) 18%, transparent), transparent 28%),
+    radial-gradient(
+      circle at 82% 20%,
+      color-mix(in srgb, var(--accent) 18%, transparent),
+      transparent 28%
+    ),
     linear-gradient(135deg, var(--bg), var(--surface));
 }
 

@@ -2,6 +2,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from './AuthContext.jsx';
 import { useLang } from '../../i18n/LangContext.jsx';
 import LanguageSwitcher from '../../components/LanguageSwitcher.jsx';
+import ThemeToggle from '../../components/ThemeToggle.jsx';
 
 export default function AdminNav() {
   const { logout } = useAuth();
@@ -21,8 +22,11 @@ export default function AdminNav() {
     <header className="admin-header">
       <div className="container admin-header-inner">
         <Link to="/admin" className="brand">
-          <span className="brand-mark">P</span>
-          <span>{t('brand')}</span>
+          <img src="/logo.webp" alt="SebaTech" className="brand-logo" width="320" height="160" />
+          <span className="brand-text">
+            <span className="brand-name">{t('brand')}</span>
+            <span className="brand-tagline">Next Level Performance</span>
+          </span>
         </Link>
 
         <nav className="admin-tabs">
@@ -52,7 +56,8 @@ export default function AdminNav() {
           </Link>
         </nav>
 
-        <div className="header-nav">
+        <div className="header-nav admin-header-controls">
+          <ThemeToggle />
           <LanguageSwitcher />
           <Link to="/" className="btn btn-outline btn-sm" target="_blank" rel="noreferrer">
             {t('admin.nav.viewSite')}
