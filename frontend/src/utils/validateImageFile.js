@@ -1,4 +1,4 @@
-export const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
+export const MAX_IMAGE_BYTES = 20 * 1024 * 1024;
 export const ALLOWED_IMAGE_TYPES = Object.freeze({
   'image/jpeg': ['jpg', 'jpeg'],
   'image/png': ['png'],
@@ -60,13 +60,19 @@ async function decodeImage(file) {
   }
 }
 
-export async function validateImageFile(file, { decode = true } = {}) {
+export async function validateImageFile(
+  file,
+  { decode = true, maximumBytes = MAX_IMAGE_BYTES } = {}
+) {
   if (!(file instanceof Blob) || !file.name) {
     throw new ImageValidationError('select', 'Select an image file.');
   }
   if (file.size === 0) throw new ImageValidationError('empty', 'The selected image is empty.');
-  if (file.size > MAX_IMAGE_BYTES) {
-    throw new ImageValidationError('size', 'The image must be 8 MB or smaller.');
+  if (file.size > maximumBytes) {
+    throw new ImageValidationError(
+      'size',
+      `The source image must be ${Math.round(maximumBytes / 1024 / 1024)} MB or smaller.`
+    );
   }
 
   const extensions = ALLOWED_IMAGE_TYPES[file.type];

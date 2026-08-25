@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { api } from '../../api.js';
 import { useLang } from '../../i18n/LangContext.jsx';
 import { useToast } from '../../components/ToastContext.jsx';
@@ -8,6 +8,7 @@ import { processImageFile } from '../../utils/processImageFile.js';
 import { useUnsavedChanges } from '../../hooks/useUnsavedChanges.js';
 import AccessibleDialog from '../../components/AccessibleDialog.jsx';
 import { API_ERROR_CODES } from '../../apiErrors.js';
+import { allowedPublicationStatuses } from '../../utils/publicationStatus.js';
 
 const emptyForm = {
   code: '',
@@ -18,7 +19,9 @@ const emptyForm = {
   description_en: '',
   description_ka: '',
   brand_id: '',
-  category_id: ''
+  category_id: '',
+  publication_status: 'draft',
+  vehicle_model_ids: []
 };
 
 export default function AdminPartForm() {
@@ -32,6 +35,7 @@ export default function AdminPartForm() {
   const [form, setForm] = useState(emptyForm);
   const [brands, setBrands] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [vehicleModels, setVehicleModels] = useState([]);
   const [imageFile, setImageFile] = useState(null);
   const [imageThumbnailFile, setImageThumbnailFile] = useState(null);
   const [imagePreview, setImagePreview] = useState('');
@@ -55,10 +59,11 @@ export default function AdminPartForm() {
   const blocker = useUnsavedChanges(isDirty && !allowNavigation.current);
 
   const loadReferenceData = useCallback(() => {
-    Promise.all([api.getBrands(), api.getCategories()])
-      .then(([b, c]) => {
+    Promise.all([api.getBrands(), api.getCategories(), api.getVehicleModels()])
+      .then(([b, c, models]) => {
         setBrands(b);
         setCategories(c);
+        setVehicleModels(models);
       })
       .catch(() => setError(t('admin.form.loadError')));
   }, [t]);
@@ -81,7 +86,7 @@ export default function AdminPartForm() {
     }
 
     api
-      .getPart(id)
+      .getAdminPart(id)
       .then((part) => {
         const databaseForm = {
           code: part.code,
@@ -92,7 +97,9 @@ export default function AdminPartForm() {
           description_en: part.description_en || '',
           description_ka: part.description_ka || '',
           brand_id: part.brand_id || '',
-          category_id: part.category_id || ''
+          category_id: part.category_id || '',
+          publication_status: part.publication_status || 'draft',
+          vehicle_model_ids: (part.vehicle_models || []).map((model) => model.id)
         };
         setInitialForm(databaseForm);
         setForm(storedDraft ? { ...databaseForm, ...storedDraft } : databaseForm);
@@ -197,8 +204,16 @@ export default function AdminPartForm() {
           cleanupWarning = true;
           showToast(t('toast.cleanupWarning'), 'error');
         }
+        if (savedPart.vehicleModelWarning) {
+          cleanupWarning = true;
+          showToast(t('toast.vehicleModelWarning'), 'error');
+        }
       } else {
-        await api.createPart(form, imageFile, imageThumbnailFile);
+        const savedPart = await api.createPart(form, imageFile, imageThumbnailFile);
+        if (savedPart.vehicleModelWarning) {
+          cleanupWarning = true;
+          showToast(t('toast.vehicleModelWarning'), 'error');
+        }
       }
       sessionStorage.removeItem(draftKey);
       if (!cleanupWarning) showToast(t('toast.saved'));
@@ -232,8 +247,30 @@ export default function AdminPartForm() {
         <h1 className="page-title">
           {isEdit ? t('admin.form.editTitle') : t('admin.form.addTitle')}
         </h1>
+        {isEdit && (
+          <Link className="btn btn-outline btn-sm" to={`/admin/parts/${id}/preview`}>
+            {t('admin.preview.action')}
+          </Link>
+        )}
 
         <form onSubmit={handleSubmit} className="simple-form">
+          <div className="field publication-status-field">
+            <label>{t('admin.form.publicationStatus')}</label>
+            <select
+              className="select input-lg"
+              value={form.publication_status}
+              onChange={update('publication_status')}
+            >
+              {allowedPublicationStatuses(isEdit ? initialForm.publication_status : 'draft').map(
+                (status) => (
+                  <option key={status} value={status}>
+                    {t(`admin.status.${status}`)}
+                  </option>
+                )
+              )}
+            </select>
+            <span className="field-hint">{t(`admin.status.help.${form.publication_status}`)}</span>
+          </div>
           <div
             className={`upload-zone ${dragOver ? 'drag-over' : ''}`}
             role="button"
@@ -440,6 +477,54 @@ export default function AdminPartForm() {
               </button>
             </div>
           </div>
+
+          <fieldset className="field vehicle-model-fieldset">
+            <legend>{t('admin.form.structuredModels')}</legend>
+            <span className="field-hint">{t('admin.form.structuredModelsHint')}</span>
+            <div className="vehicle-model-options">
+              {vehicleModels
+                .filter(
+                  (model) => !form.brand_id || String(model.brand_id) === String(form.brand_id)
+                )
+                .map((model) => {
+                  const checked = form.vehicle_model_ids.some(
+                    (modelId) => String(modelId) === String(model.id)
+                  );
+                  const label = [model.model_name, model.chassis_code].filter(Boolean).join(' ');
+                  return (
+                    <label key={model.id} className="vehicle-model-option">
+                      <input
+                        type="checkbox"
+                        checked={checked}
+                        onChange={(event) =>
+                          setForm((current) => ({
+                            ...current,
+                            vehicle_model_ids: event.target.checked
+                              ? [...current.vehicle_model_ids, model.id]
+                              : current.vehicle_model_ids.filter(
+                                  (modelId) => String(modelId) !== String(model.id)
+                                )
+                          }))
+                        }
+                      />
+                      <span>{label}</span>
+                    </label>
+                  );
+                })}
+              {vehicleModels.filter(
+                (model) => !form.brand_id || String(model.brand_id) === String(form.brand_id)
+              ).length === 0 && (
+                <span className="field-hint">{t('admin.form.noStructuredModels')}</span>
+              )}
+            </div>
+            <button
+              type="button"
+              className="btn btn-outline btn-sm"
+              onClick={() => navigate('/admin/vehicle-models')}
+            >
+              {t('admin.form.manageStructuredModels')}
+            </button>
+          </fieldset>
 
           {error && (
             <div className="error-text" role="alert">

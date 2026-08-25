@@ -19,6 +19,38 @@ until the preceding gate passes.
 - Require automated checks before production deployment.
 - Make changes in small commits so each phase can be reviewed or rolled back.
 
+## Current working mode — client feature iteration
+
+**Status:** Active — release freeze has not been declared
+
+The project is currently being demonstrated to the client and new catalog/admin requirements are
+still being requested. Development may continue through the local/product phases below, but the
+release track must remain deferred until the client explicitly confirms a feature and content
+freeze.
+
+### Work that can continue now
+
+- Product, catalog, service, content, visual, responsive, and admin-panel improvements.
+- Database migrations required by approved product/admin features.
+- Local and connected-Supabase testing using reversible test records.
+- Batch import, data cleanup, bulk management, draft/review workflows, and automated tests.
+- Documentation for product preparation and nontechnical administrator workflows.
+
+### Work intentionally deferred
+
+- Final SEO wording, keywords, structured data, and sitemap decisions that depend on approved client
+  content and search strategy.
+- Production hosting, domain/DNS cutover, production Cloudflare configuration, and public release.
+- Final billing ownership, paid-plan selection, quota alerts, operational monitoring, backup
+  activation, account transfer, and permanent administrator handoff.
+- Final cross-browser, production CDN, deployed-header, uptime, restore, and post-release checks.
+
+### Exit condition
+
+Move to the release track only when the client approves the public features, services/about content,
+catalog structure, administrator workflow, and launch scope, and agrees that new requests will be
+handled as post-launch changes.
+
 ## Phase 0 — Baseline and delivery safety
 
 **Status:** Complete — 2026-07-27
@@ -400,7 +432,156 @@ Completion record:
 - Image payload is materially reduced on catalog pages.
 - Performance measurements are recorded and reproducible.
 
-## Phase 7 — SEO and discoverability
+## Phase 7 — Catalog governance and publication workflow
+
+**Status:** Implemented locally — Supabase migration and client acceptance testing pending
+
+**Completion record:** Draft/review/published/archived states, public visibility enforcement,
+status filters and counts, admin product preview, controlled state transitions, reusable structured
+vehicle models, product-model associations, and batch-import status/model matching are implemented.
+Existing products are preserved as published when the migration is first applied. See
+`docs/PHASE_7_CATALOG_GOVERNANCE.md` for migration and verification instructions.
+
+### Scope
+
+- Add an explicit product lifecycle:
+  - `draft` for incomplete or newly imported records;
+  - `needs_review` for uncertain compatibility, titles, or classification;
+  - `published` for client-approved public products;
+  - `archived` for products removed from the public catalog without immediate destruction.
+- Ensure the public catalog and Featured Parts show only published products.
+- Make batch-imported uncertain products default to `needs_review` instead of becoming public
+  immediately.
+- Add admin filters and counts for draft, review, published, and archived products.
+- Add product preview before publication.
+- Add publish/unpublish/archive actions with accessible confirmation and clear results.
+- Introduce structured reusable vehicle data where it improves consistency:
+  - brand;
+  - model family;
+  - chassis/platform code;
+  - optional production years.
+- Retain free-text compatibility notes for unusual/shared applications.
+- Provide a controlled normalization path for existing values such as `X5 G05`, `BMW G05`, and
+  `G05` without silently changing approved data.
+
+### Tests
+
+- Draft, review, and archived products never appear publicly.
+- Publishing makes a product visible without changing its image or technical data.
+- Archiving and restoring preserve the complete product record.
+- Batch records with `Unverified Model` enter the review state.
+- Vehicle-model selection and free-text compatibility can coexist.
+
+### Acceptance gate
+
+- The client can safely add incomplete products without accidentally publishing them.
+- Public visibility is explicit and reversible.
+- Vehicle/model values remain consistent enough for future filtering and bulk management.
+
+## Phase 8 — Batch import resilience and bulk administration
+
+**Status:** Basic batch importer complete — resilience and bulk tools ready to implement now
+
+**Completion record:** Folder-driven batch import, automatic path metadata, 20 MB source-image
+acceptance, 1920px WebP/640px thumbnail generation, selected-batch duplicate detection, existing-code
+checks, review filters, controlled two-worker upload, failure retry, missing-reference creation, and
+English/Georgian folder-preparation documentation are implemented. The real 292-image organized
+fixture validates with no missing codes/brands or exact duplicate images. See
+`docs/ADMIN_BATCH_IMPORT.md` and `docs/BATCH_IMPORT_FOLDER_GUIDE.md`.
+
+### Remaining scope
+
+- Persist unfinished batch-import drafts locally so a refresh or browser restart does not discard
+  corrections.
+- Add explicit **Resume batch** and **Discard batch** controls.
+- Generate a downloadable CSV completion report containing:
+  - imported products;
+  - failed rows and reasons;
+  - duplicate codes/images;
+  - records still requiring review;
+  - automatically created brands/categories.
+- Store an image SHA-256 value for new uploads and detect duplicates against previously imported
+  database records, not only within the current selection.
+- Add selected-row bulk editing for:
+  - brand;
+  - category;
+  - vehicle model/platform;
+  - publication/review status;
+  - part/module type.
+- Add CSV export of current catalog data for offline review and correction.
+- Add optional CSV-assisted import only if the client later receives structured supplier data.
+- Preserve per-row progress and make retry idempotent so already imported records cannot be created
+  twice after interruption.
+
+### Tests
+
+- Refreshing during review restores all edits and selections.
+- Resuming an interrupted upload skips successfully imported rows.
+- The completion report matches the database result exactly.
+- A photo matching a previously stored SHA-256 value is warned/blocked according to the approved
+  duplicate policy.
+- Bulk changes affect only checked rows and can be reviewed before saving.
+- A 300-image fixture remains responsive and does not exceed the configured upload concurrency.
+
+### Acceptance gate
+
+- A nontechnical administrator can prepare, interrupt, resume, review, and finish a large import
+  without losing work or creating duplicates.
+- Failed rows have actionable explanations and remain recoverable.
+- Large corrections do not require editing every product individually.
+
+## Phase 9 — Admin safety, maintenance, and recoverability
+
+**Status:** Ready to implement locally; production scheduling/ownership remains deferred
+
+### Scope available now
+
+- Replace immediate destructive product deletion with recoverable archive/trash behavior.
+- Add an explicit permanent-delete action restricted to already archived products.
+- Decide and implement a retention period before image objects can be permanently removed.
+- Record an admin activity history for important mutations:
+  - product created/imported;
+  - technical fields changed;
+  - image replaced/removed;
+  - publish/archive/restore/permanent delete;
+  - brand/category/model reference changes.
+- Store actor ID, timestamp, action, affected record, and a concise before/after summary without
+  recording credentials or session secrets.
+- Make storage inventory recursive across `full/` and `thumb/` prefixes.
+- Show orphan path, size, upload date, and reason before cleanup.
+- Add confirmed orphan cleanup that rechecks database references immediately before deletion.
+- Show catalog totals, draft/review counts, failed-import count, and approximate image-storage usage
+  on the admin dashboard.
+- Add a product-clone action for similar parts while requiring a new unique code.
+- Add admin-friendly error boundaries so a screen failure offers retry/navigation instead of the
+  router's raw developer error page.
+
+### Deferred production portion
+
+- Automated retention schedules and scheduled cleanup jobs.
+- Production quota alerts and storage/database monitoring.
+- Production backup scheduling and automatic R2 synchronization.
+- Permanent client admin-account replacement, ownership transfer, and recovery drill.
+
+### Tests
+
+- Archived products can be restored with all data and images intact.
+- Permanent deletion cannot run against a published/non-archived product.
+- Audit entries identify the correct actor, record, action, and time.
+- Recursive orphan inspection finds objects under both image prefixes and never reports referenced
+  images as removable.
+- Cleanup performs a final reference check and reports partial failures.
+- Admin route failures render a localized recovery screen.
+
+### Acceptance gate
+
+- Common client mistakes are reversible.
+- Storage cleanup is understandable and cannot remove a referenced product image.
+- Important admin changes can be traced without exposing sensitive information.
+
+## Phase 10 — SEO and discoverability
+
+**Status:** Deferred until client content and search-strategy approval
 
 ### Scope
 
@@ -420,7 +601,9 @@ Completion record:
 - Sitemap and robots behavior match the deployment environment.
 - Structured data validates without misleading commercial fields.
 
-## Phase 8 — Observability, backup, and operations
+## Phase 11 — Observability, backup, and operations
+
+**Status:** Planning retained — activation deferred until release/hosting stage
 
 ### Scope
 
@@ -471,7 +654,9 @@ Completion record:
   each critical account, and locate stored recovery codes without developer assistance.
 - Operational ownership is transferred to the client or named maintainer.
 
-## Phase 9 — Production release and post-release validation
+## Phase 12 — Production release and post-release validation
+
+**Status:** Deferred until client feature/content freeze and explicit launch approval
 
 ### Pre-release
 
@@ -519,19 +704,25 @@ Completion record:
 - Filter/query serialization.
 - Image-path parsing and cleanup decisions.
 - Form validation.
+- Batch-folder metadata extraction and duplicate classification.
+- Publication-state transitions and bulk-edit selection rules.
 
 ### Integration tests
 
 - Supabase RLS permission matrix.
 - Product/reference CRUD.
 - Duplicate-code handling.
+- Existing image-hash duplicate handling.
 - Migration and seed idempotency.
 - Storage upload, replacement, deletion, and rollback.
+- Archive/restore, audit history, and recursive orphan cleanup.
 
 ### End-to-end tests
 
 - Browse, filter, search, load more, open detail, and contact.
 - Admin login, create, edit, search, replace image, and delete.
+- Prepare/review/import/resume/report a product batch.
+- Draft, preview, publish, archive, and restore a product.
 - Unauthorized and expired-session paths.
 - Empty database, network failure, and not-found behavior.
 - English/Georgian switching and persisted theme/language.
@@ -545,19 +736,40 @@ Completion record:
 
 ## Suggested implementation sequence
 
-1. Phase 0: baseline automation.
-2. Phase 1: database correctness.
-3. Phase 2: authorization and security.
-4. Phase 3: API correctness and storage lifecycle.
-5. Phase 4: functional UX.
-6. Phase 5: accessibility, localization, and design system.
-7. Phase 6: performance.
-8. Phase 7: SEO.
-9. Phase 8: operations.
-10. Phase 9: release.
+### Completed foundation
 
-Phases 5–7 can partly overlap after Phases 1–4 stabilize, but database, authorization,
-and production data-source fixes should remain the first implementation milestone.
+1. Phase 0: baseline automation.
+2. Phase 1: database correctness implementation.
+3. Phase 2: authorization and security implementation.
+4. Phase 3: API correctness and media lifecycle implementation.
+5. Phase 4: functional UX implementation.
+6. Phase 5: accessibility, localization, and design-system implementation.
+7. Phase 6: performance and asset optimization implementation.
+
+External/Supabase/production acceptance gates recorded in those phases remain open until the
+appropriate connected or deployed environment is available.
+
+### Current development track — safe to continue before launch freeze
+
+8. Phase 7: catalog governance, structured vehicle data, and draft/review/publish workflow.
+9. Phase 8: persistent batch imports, reports, database image hashes, and bulk administration.
+10. Phase 9: recoverable deletion, activity history, recursive storage maintenance, and admin error
+    recovery.
+11. Continue client-requested public/admin features, content, and visual refinements under the
+    Definition of Done.
+
+Phases 7–9 may overlap when their database changes are coordinated. Publication status should be
+implemented before importing another large uncertain batch, while batch persistence/reporting and
+bulk editing can then build on that status model.
+
+### Deferred release track — do not start without explicit client approval
+
+12. Phase 10: finalized SEO and discoverability after search/content approval.
+13. Phase 11: production observability, backups, billing/ownership, and operational recovery.
+14. Phase 12: production deployment, smoke testing, ownership transfer, and post-release validation.
+
+Entering Phase 10 does not itself authorize hosting. Phase 11 production activation and Phase 12
+require a documented client feature/content freeze and launch decision.
 
 ## Definition of done for every change
 

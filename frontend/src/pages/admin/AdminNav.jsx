@@ -37,10 +37,16 @@ export default function AdminNav() {
             {t('admin.nav.home')}
           </Link>
           <Link
-            className={`admin-tab ${isActive('/admin/parts') ? 'active' : ''}`}
+            className={`admin-tab ${isActive('/admin/parts') && location.pathname !== '/admin/parts/import' ? 'active' : ''}`}
             to="/admin/parts"
           >
             {t('admin.nav.parts')}
+          </Link>
+          <Link
+            className={`admin-tab ${location.pathname === '/admin/parts/import' ? 'active' : ''}`}
+            to="/admin/parts/import"
+          >
+            {t('admin.nav.batchImport')}
           </Link>
           <Link
             className={`admin-tab ${isActive('/admin/brands') ? 'active' : ''}`}
@@ -53,6 +59,12 @@ export default function AdminNav() {
             to="/admin/categories"
           >
             {t('admin.nav.categories')}
+          </Link>
+          <Link
+            className={`admin-tab ${isActive('/admin/vehicle-models') ? 'active' : ''}`}
+            to="/admin/vehicle-models"
+          >
+            {t('admin.nav.vehicleModels')}
           </Link>
         </nav>
 

@@ -41,6 +41,11 @@ export default function AdminHome() {
             <span className="tile-title">{t('admin.home.categoriesTile')}</span>
             <span className="tile-desc">{t('admin.home.categoriesDesc')}</span>
           </Link>
+          <Link to="/admin/vehicle-models" className="tile">
+            <span className="tile-icon">🚗</span>
+            <span className="tile-title">{t('admin.home.vehicleModelsTile')}</span>
+            <span className="tile-desc">{t('admin.home.vehicleModelsDesc')}</span>
+          </Link>
         </div>
 
         <Link to="/admin/parts/new" className="btn btn-primary btn-lg" style={{ marginTop: 32 }}>

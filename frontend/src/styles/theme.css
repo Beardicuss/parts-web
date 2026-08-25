@@ -2620,6 +2620,310 @@ html:lang(ka) :is(.hero-eyebrow, .section-eyebrow, .about-reach-label) {
   letter-spacing: 0.035em;
 }
 
+/* Batch product import */
+.visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+.batch-import-page {
+  padding-top: 32px;
+  padding-bottom: 110px;
+}
+
+.batch-import-heading {
+  align-items: flex-end;
+  gap: 24px;
+}
+
+.batch-picker-actions,
+.batch-filters,
+.batch-bulk-controls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.batch-status,
+.batch-error {
+  margin-top: 20px;
+  padding: 16px 18px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+}
+
+.batch-status {
+  display: grid;
+  grid-template-columns: minmax(220px, auto) minmax(180px, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+}
+
+.batch-status progress {
+  width: 100%;
+  accent-color: var(--accent);
+}
+
+.batch-summary {
+  margin-top: 24px;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.batch-summary > div {
+  padding: 18px;
+  display: grid;
+  gap: 4px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+}
+
+.batch-summary strong {
+  color: var(--accent);
+  font-family: var(--font-display);
+  font-size: 28px;
+}
+
+.batch-summary span {
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.batch-controls {
+  margin: 18px 0 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.batch-table-wrap {
+  max-height: 64vh;
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+}
+
+.batch-table {
+  width: 100%;
+  min-width: 1520px;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.batch-table th,
+.batch-table td {
+  padding: 9px;
+  border-bottom: 1px solid var(--border-soft);
+  text-align: left;
+  vertical-align: middle;
+}
+
+.batch-table th {
+  position: sticky;
+  z-index: 2;
+  top: 0;
+  color: var(--text-muted);
+  background: var(--surface-raised);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.batch-table tr.needs-review {
+  background: color-mix(in srgb, var(--accent) 6%, transparent);
+}
+
+.batch-table .input,
+.batch-table .select {
+  min-width: 150px;
+  padding: 9px 10px;
+  font-size: 13px;
+}
+
+.batch-title-input {
+  min-width: 280px !important;
+}
+
+.batch-thumb {
+  width: 68px;
+  height: 52px;
+  display: block;
+  object-fit: contain;
+  border: 1px solid var(--border-soft);
+  border-radius: 5px;
+  background: #fff;
+}
+
+.batch-row-status {
+  display: block;
+  font-weight: 700;
+}
+
+.batch-table td:last-child small {
+  max-width: 220px;
+  margin-top: 4px;
+  display: block;
+  color: var(--text-muted);
+  line-height: 1.35;
+}
+
+.status-processing {
+  color: var(--accent);
+}
+
+.status-imported {
+  color: #279469;
+}
+
+.status-failed {
+  color: var(--danger);
+}
+
+.batch-import-footer {
+  position: sticky;
+  z-index: 3;
+  bottom: 12px;
+  margin-top: 14px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--surface) 94%, transparent);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.16);
+  backdrop-filter: blur(12px);
+}
+
+.batch-import-footer span {
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+/* Catalog governance and vehicle models */
+.publication-status-field {
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 8px;
+  background: var(--surface-raised);
+}
+
+.publication-badge {
+  width: fit-content;
+  padding: 5px 8px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.publication-badge.status-draft {
+  color: var(--text-muted);
+}
+
+.publication-badge.status-needs_review {
+  color: var(--accent);
+  border-color: color-mix(in srgb, var(--accent) 60%, var(--border));
+}
+
+.publication-badge.status-published {
+  color: #279469;
+  border-color: color-mix(in srgb, #279469 60%, var(--border));
+}
+
+.publication-badge.status-archived {
+  color: var(--danger);
+}
+
+.vehicle-model-fieldset {
+  margin: 0;
+  padding: 18px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.vehicle-model-fieldset legend {
+  padding: 0 6px;
+  font-weight: 700;
+}
+
+.vehicle-model-options {
+  max-height: 220px;
+  margin: 12px 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  overflow-y: auto;
+}
+
+.vehicle-model-option {
+  padding: 9px 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--border-soft);
+  border-radius: 6px;
+  background: var(--surface);
+  cursor: pointer;
+}
+
+.admin-preview-banner {
+  margin: 22px 0 14px;
+  padding: 12px 16px;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--accent-ink);
+  border-radius: 8px;
+  background: var(--accent);
+}
+
+.vehicle-models-page {
+  max-width: 1180px;
+  padding-top: 36px;
+  padding-bottom: 80px;
+}
+
+.vehicle-model-form {
+  margin: 24px 0;
+  padding: 18px;
+  display: grid;
+  grid-template-columns: 1fr 1.2fr 1fr 130px 130px auto auto;
+  gap: 10px;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+}
+
+.vehicle-model-toolbar {
+  margin: 26px 0 12px;
+  align-items: center;
+}
+
+.vehicle-model-toolbar .input {
+  max-width: 420px;
+}
+
+.vehicle-model-list .reference-row > div:first-child {
+  display: grid;
+  gap: 5px;
+}
+
 @media (max-width: 900px) {
   .home-category-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -2660,6 +2964,20 @@ html:lang(ka) :is(.hero-eyebrow, .section-eyebrow, .about-reach-label) {
   }
 
   .about-strength-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .batch-summary {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .batch-controls,
+  .batch-import-footer {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .vehicle-model-form {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
@@ -2794,6 +3112,37 @@ html:lang(ka) :is(.hero-eyebrow, .section-eyebrow, .about-reach-label) {
   }
 
   .about-cta-actions {
+    flex-direction: column;
+  }
+
+  .batch-import-heading {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .batch-picker-actions > .btn {
+    flex: 1;
+  }
+
+  .batch-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .batch-status {
+    grid-template-columns: 1fr auto;
+  }
+
+  .batch-status progress {
+    grid-column: 1 / -1;
+  }
+
+  .vehicle-model-form,
+  .vehicle-model-options {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-preview-banner {
+    align-items: flex-start;
     flex-direction: column;
   }
 }

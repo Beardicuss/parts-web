@@ -18,12 +18,18 @@ const PART_COLUMNS = `
   category_id,
   image_path,
   image_thumbnail_path,
+  publication_status,
   created_at,
   updated_at,
   brands ( name_en, name_ka ),
-  categories ( name_en, name_ka )
+  categories ( name_en, name_ka ),
+  part_vehicle_models (
+    vehicle_models ( id, brand_id, model_name, chassis_code, year_from, year_to )
+  )
 `;
 const REFERENCE_COLUMNS = 'id, name_en, name_ka';
+const VEHICLE_MODEL_COLUMNS =
+  'id, brand_id, model_name, chassis_code, year_from, year_to, created_at, brands ( name_en, name_ka )';
 
 const SYSTEM_CATEGORY_IDS = {
   'control-unit': [3],
@@ -58,13 +64,15 @@ function requireClient() {
 
 function flattenPart(row) {
   if (!row) return row;
-  const { brands, categories, ...rest } = row;
+  const { brands, categories, part_vehicle_models, ...rest } = row;
   return {
     ...rest,
+    publication_status: rest.publication_status || 'published',
     brand_name_en: brands?.name_en ?? null,
     brand_name_ka: brands?.name_ka ?? null,
     category_name_en: categories?.name_en ?? null,
-    category_name_ka: categories?.name_ka ?? null
+    category_name_ka: categories?.name_ka ?? null,
+    vehicle_models: (part_vehicle_models ?? []).map((link) => link.vehicle_models).filter(Boolean)
   };
 }
 
@@ -72,8 +80,10 @@ function escapeForOr(value) {
   return value.replace(/[,%()]/g, ' ').trim();
 }
 
-function filterMockParts(parts, filters) {
-  let list = [...parts];
+function filterMockParts(parts, filters, { publicOnly = true } = {}) {
+  let list = publicOnly
+    ? parts.filter((part) => (part.publication_status || 'published') === 'published')
+    : [...parts];
   if (filters.system) {
     const categoryIds = SYSTEM_CATEGORY_IDS[filters.system] || [];
     list = list.filter((part) => categoryIds.includes(Number(part.category_id)));
@@ -118,6 +128,9 @@ function applyPartFilters(query, filters) {
   if (filters.brand_id) filteredQuery = filteredQuery.eq('brand_id', filters.brand_id);
   if (filters.category_id) {
     filteredQuery = filteredQuery.eq('category_id', filters.category_id);
+  }
+  if (filters.publication_status) {
+    filteredQuery = filteredQuery.eq('publication_status', filters.publication_status);
   }
   return filteredQuery;
 }
@@ -172,6 +185,20 @@ async function rollbackUploads(uploads, originalError) {
   throw toApiError(originalError);
 }
 
+async function syncPartVehicleModels(partId, vehicleModelIds) {
+  if (!Array.isArray(vehicleModelIds)) return null;
+  try {
+    const { error } = await requireClient().rpc('set_part_vehicle_models', {
+      target_part_id: partId,
+      target_vehicle_model_ids: vehicleModelIds.map(Number).filter(Number.isFinite)
+    });
+    if (error) throw error;
+    return null;
+  } catch (error) {
+    return { message: error.message || 'Vehicle-model links could not be saved.' };
+  }
+}
+
 function partPayload(form) {
   return {
     code: form.code.trim(),
@@ -182,7 +209,8 @@ function partPayload(form) {
     description_en: form.description_en?.trim() || '',
     description_ka: form.description_ka?.trim() || '',
     brand_id: form.brand_id || null,
-    category_id: form.category_id || null
+    category_id: form.category_id || null,
+    publication_status: form.publication_status || 'draft'
   };
 }
 
@@ -190,13 +218,16 @@ export const api = {
   getLatestParts: async (limit = 8) => {
     if (USE_MOCK_DATA) {
       const { MOCK_PARTS } = await getMockData();
-      return [...MOCK_PARTS].sort((a, b) => Number(b.id) - Number(a.id)).slice(0, limit);
+      return MOCK_PARTS.filter((part) => (part.publication_status || 'published') === 'published')
+        .sort((a, b) => Number(b.id) - Number(a.id))
+        .slice(0, limit);
     }
     const client = requireClient();
     const { data } = await execute(
       client
         .from('parts')
         .select(PART_COLUMNS)
+        .eq('publication_status', 'published')
         .order('created_at', { ascending: false })
         .order('id', { ascending: false })
         .limit(limit),
@@ -216,6 +247,7 @@ export const api = {
     let query = client
       .from('parts')
       .select(PART_COLUMNS)
+      .eq('publication_status', 'published')
       .order('updated_at', { ascending: false })
       .order('id', { ascending: false });
     query = applyPartFilters(query, filters).range(from, to);
@@ -223,10 +255,16 @@ export const api = {
     return (data ?? []).map(flattenPart);
   },
 
-  getAdminParts: async ({ search = '', page = 1, pageSize = 20 } = {}) => {
+  getAdminParts: async ({ search = '', publicationStatus = '', page = 1, pageSize = 20 } = {}) => {
     if (USE_MOCK_DATA) {
       const { MOCK_PARTS } = await getMockData();
-      const filtered = filterMockParts(MOCK_PARTS, { search });
+      let filtered = [...MOCK_PARTS];
+      if (search) filtered = filterMockParts(filtered, { search }, { publicOnly: false });
+      if (publicationStatus) {
+        filtered = filtered.filter(
+          (part) => (part.publication_status || 'published') === publicationStatus
+        );
+      }
       const from = (page - 1) * pageSize;
       return {
         items: filtered.slice(from, from + pageSize),
@@ -243,7 +281,10 @@ export const api = {
       .select(PART_COLUMNS, { count: 'exact' })
       .order('created_at', { ascending: false })
       .order('id', { ascending: false });
-    query = applyPartFilters(query, { search }).range(from, from + pageSize - 1);
+    query = applyPartFilters(query, {
+      search,
+      publication_status: publicationStatus
+    }).range(from, from + pageSize - 1);
     const { data, count } = await execute(query, 'Admin products could not be loaded.');
     return {
       items: (data ?? []).map(flattenPart),
@@ -254,16 +295,88 @@ export const api = {
     };
   },
 
+  getExistingPartCodes: async () => {
+    if (USE_MOCK_DATA) {
+      const { MOCK_PARTS } = await getMockData();
+      return MOCK_PARTS.map((part) => part.code);
+    }
+    const client = requireClient();
+    const codes = [];
+    const pageSize = 1000;
+    for (let from = 0; ; from += pageSize) {
+      const { data } = await execute(
+        client
+          .from('parts')
+          .select('id, code')
+          .order('id', { ascending: true })
+          .range(from, from + pageSize - 1),
+        'Existing product codes could not be checked.'
+      );
+      codes.push(...(data ?? []).map((part) => part.code));
+      if ((data ?? []).length < pageSize) break;
+    }
+    return codes;
+  },
+
+  getPublicationCounts: async () => {
+    const statuses = ['draft', 'needs_review', 'published', 'archived'];
+    if (USE_MOCK_DATA) {
+      const { MOCK_PARTS } = await getMockData();
+      return Object.fromEntries(
+        statuses.map((status) => [
+          status,
+          MOCK_PARTS.filter((part) => (part.publication_status || 'published') === status).length
+        ])
+      );
+    }
+    const client = requireClient();
+    const results = await Promise.all(
+      statuses.map((status) =>
+        execute(
+          client
+            .from('parts')
+            .select('id', { count: 'exact', head: true })
+            .eq('publication_status', status),
+          'Publication counts could not be loaded.'
+        )
+      )
+    );
+    return Object.fromEntries(statuses.map((status, index) => [status, results[index].count ?? 0]));
+  },
+
   getPart: async (id) => {
     if (USE_MOCK_DATA) {
       const { MOCK_PARTS } = await getMockData();
-      const part = MOCK_PARTS.find((item) => String(item.id) === String(id));
+      const part = MOCK_PARTS.find(
+        (item) =>
+          String(item.id) === String(id) && (item.publication_status || 'published') === 'published'
+      );
       if (!part) throw new ApiError(API_ERROR_CODES.NOT_FOUND, 'Part not found.');
       return part;
     }
     const { data } = await execute(
-      requireClient().from('parts').select(PART_COLUMNS).eq('id', id).maybeSingle(),
+      requireClient()
+        .from('parts')
+        .select(PART_COLUMNS)
+        .eq('id', id)
+        .eq('publication_status', 'published')
+        .maybeSingle(),
       'The product could not be loaded.'
+    );
+    if (!data) throw new ApiError(API_ERROR_CODES.NOT_FOUND, 'Part not found.');
+    return flattenPart(data);
+  },
+
+  getAdminPart: async (id) => {
+    if (USE_MOCK_DATA) {
+      const { MOCK_PARTS } = await getMockData();
+      const part = MOCK_PARTS.find((item) => String(item.id) === String(id));
+      if (!part) throw new ApiError(API_ERROR_CODES.NOT_FOUND, 'Part not found.');
+      return flattenPart(part);
+    }
+    const { data } = await execute(
+      requireClient().from('parts').select(PART_COLUMNS).eq('id', id).maybeSingle(),
+      'The admin product could not be loaded.'
     );
     if (!data) throw new ApiError(API_ERROR_CODES.NOT_FOUND, 'Part not found.');
     return flattenPart(data);
@@ -287,6 +400,21 @@ export const api = {
     return data ?? [];
   },
 
+  getVehicleModels: async ({ brandId = '' } = {}) => {
+    if (USE_MOCK_DATA) return [];
+    let query = requireClient()
+      .from('vehicle_models')
+      .select(VEHICLE_MODEL_COLUMNS)
+      .order('model_name')
+      .order('chassis_code');
+    if (brandId) query = query.eq('brand_id', brandId);
+    const { data } = await execute(query, 'Vehicle models could not be loaded.');
+    return (data ?? []).map(({ brands, ...model }) => ({
+      ...model,
+      brand_name_en: brands?.name_en ?? ''
+    }));
+  },
+
   createPart: async (form, imageFile, imageThumbnailFile) => {
     const client = requireClient();
     const uploads = [];
@@ -302,7 +430,8 @@ export const api = {
         client.from('parts').insert(payload).select(PART_COLUMNS).single(),
         'The product could not be created.'
       );
-      return flattenPart(data);
+      const vehicleModelWarning = await syncPartVehicleModels(data.id, form.vehicle_model_ids);
+      return { ...flattenPart(data), vehicleModelWarning };
     } catch (error) {
       return rollbackUploads(uploads, error);
     }
@@ -334,6 +463,8 @@ export const api = {
         'The product could not be updated.'
       );
 
+      const vehicleModelWarning = await syncPartVehicleModels(id, form.vehicle_model_ids);
+
       const oldPaths =
         uploads.length || removeImage
           ? [existing?.image_path, existing?.image_thumbnail_path]
@@ -352,7 +483,7 @@ export const api = {
           };
         }
       }
-      return { ...flattenPart(data), mediaCleanupWarning };
+      return { ...flattenPart(data), mediaCleanupWarning, vehicleModelWarning };
     } catch (error) {
       return rollbackUploads(uploads, error);
     }
@@ -447,5 +578,55 @@ export const api = {
   },
   deleteCategory: async (id) => {
     await execute(requireClient().from('categories').delete().eq('id', id), 'Delete failed.');
+  },
+  createVehicleModel: async (payload) => {
+    const { data } = await execute(
+      requireClient()
+        .from('vehicle_models')
+        .insert({
+          brand_id: payload.brand_id,
+          model_name: payload.model_name.trim(),
+          chassis_code: payload.chassis_code?.trim() || '',
+          year_from: payload.year_from || null,
+          year_to: payload.year_to || null
+        })
+        .select(VEHICLE_MODEL_COLUMNS)
+        .single(),
+      'The vehicle model could not be created.'
+    );
+    return data;
+  },
+  updateVehicleModel: async (id, payload) => {
+    const { data } = await execute(
+      requireClient()
+        .from('vehicle_models')
+        .update({
+          brand_id: payload.brand_id,
+          model_name: payload.model_name.trim(),
+          chassis_code: payload.chassis_code?.trim() || '',
+          year_from: payload.year_from || null,
+          year_to: payload.year_to || null
+        })
+        .eq('id', id)
+        .select(VEHICLE_MODEL_COLUMNS)
+        .single(),
+      'The vehicle model could not be updated.'
+    );
+    return data;
+  },
+  deleteVehicleModel: async (id) => {
+    await execute(requireClient().from('vehicle_models').delete().eq('id', id), 'Delete failed.');
+  },
+  updatePartStatus: async (id, publicationStatus) => {
+    const { data } = await execute(
+      requireClient()
+        .from('parts')
+        .update({ publication_status: publicationStatus })
+        .eq('id', id)
+        .select(PART_COLUMNS)
+        .single(),
+      'The product status could not be changed.'
+    );
+    return flattenPart(data);
   }
 };

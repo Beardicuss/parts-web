@@ -38,7 +38,7 @@ describe('validateImageFile', () => {
       type: 'image/jpeg'
     });
     await expect(validateImageFile(oversized, { decode: false })).rejects.toThrow(
-      '8 MB or smaller'
+      '20 MB or smaller'
     );
   });
 

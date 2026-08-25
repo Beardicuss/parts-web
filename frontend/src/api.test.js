@@ -120,6 +120,14 @@ describe('catalog API correctness', () => {
       totalPages: 5
     });
   });
+
+  it('returns all existing product codes for batch duplicate checks', async () => {
+    service.state.databaseResults.push({
+      data: [{ code: 'A1' }, { code: 'B2' }],
+      error: null
+    });
+    await expect(api.getExistingPartCodes()).resolves.toEqual(['A1', 'B2']);
+  });
 });
 
 describe('media lifecycle', () => {

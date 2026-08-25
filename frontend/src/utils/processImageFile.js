@@ -1,9 +1,10 @@
-import { ImageValidationError, MAX_IMAGE_BYTES, validateImageFile } from './validateImageFile.js';
+import { ImageValidationError, validateImageFile } from './validateImageFile.js';
 
 export const MAX_IMAGE_DIMENSION = 1920;
 export const THUMBNAIL_DIMENSION = 640;
 export const WEBP_QUALITY = 0.82;
 export const WEBP_QUALITY_FLOOR = 0.68;
+export const MAX_PROCESSED_IMAGE_BYTES = 8 * 1024 * 1024;
 
 export function calculateContainSize(width, height, maximum = MAX_IMAGE_DIMENSION) {
   const scale = Math.min(1, maximum / width, maximum / height);
@@ -58,7 +59,7 @@ export async function processImageFile(
     if (output.size > 1_500_000) {
       output = await canvasToBlob(canvas, WEBP_QUALITY_FLOOR);
     }
-    if (output.size > MAX_IMAGE_BYTES) {
+    if (output.size > MAX_PROCESSED_IMAGE_BYTES) {
       throw new ImageValidationError('processed_size', 'The optimized image is still too large.');
     }
 

@@ -5,6 +5,7 @@ import { useLang } from '../../i18n/LangContext.jsx';
 import { useToast } from '../../components/ToastContext.jsx';
 import AdminNav from './AdminNav.jsx';
 import AccessibleDialog from '../../components/AccessibleDialog.jsx';
+import { allowedPublicationStatuses, PUBLICATION_STATUSES } from '../../utils/publicationStatus.js';
 
 export default function AdminParts() {
   const { t, field } = useLang();
@@ -19,22 +20,41 @@ export default function AdminParts() {
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
+  const [publicationStatus, setPublicationStatus] = useState('');
+  const [publicationCounts, setPublicationCounts] = useState({
+    draft: 0,
+    needs_review: 0,
+    published: 0,
+    archived: 0
+  });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [retryKey, setRetryKey] = useState(0);
   const requestSequence = useRef(0);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleting, setDeleting] = useState(false);
+  const [statusTarget, setStatusTarget] = useState(null);
+  const [changingStatus, setChangingStatus] = useState(false);
 
   useEffect(() => {
     const requestId = ++requestSequence.current;
     const handle = setTimeout(() => {
       setLoading(true);
       setError('');
-      api
-        .getAdminParts({ search: search.trim(), page, pageSize })
-        .then((data) => {
-          if (requestId === requestSequence.current) setResult(data);
+      Promise.all([
+        api.getAdminParts({
+          search: search.trim(),
+          publicationStatus,
+          page,
+          pageSize
+        }),
+        api.getPublicationCounts()
+      ])
+        .then(([data, counts]) => {
+          if (requestId === requestSequence.current) {
+            setResult(data);
+            setPublicationCounts(counts);
+          }
         })
         .catch(() => {
           if (requestId === requestSequence.current) setError(t('admin.parts.loadError'));
@@ -44,7 +64,7 @@ export default function AdminParts() {
         });
     }, 250);
     return () => clearTimeout(handle);
-  }, [page, pageSize, retryKey, search, t]);
+  }, [page, pageSize, publicationStatus, retryKey, search, t]);
 
   const reload = () => setRetryKey((value) => value + 1);
 
@@ -67,6 +87,21 @@ export default function AdminParts() {
     }
   };
 
+  const handleStatusChange = async () => {
+    if (!statusTarget || changingStatus) return;
+    setChangingStatus(true);
+    try {
+      await api.updatePartStatus(statusTarget.part.id, statusTarget.status);
+      showToast(t('toast.saved'));
+      setStatusTarget(null);
+      reload();
+    } catch {
+      showToast(t('toast.error'), 'error');
+    } finally {
+      setChangingStatus(false);
+    }
+  };
+
   return (
     <div className="admin-shell">
       <AdminNav />
@@ -75,9 +110,14 @@ export default function AdminParts() {
           <h1 className="page-title" style={{ margin: 0 }}>
             {t('admin.parts.title')}
           </h1>
-          <Link to="/admin/parts/new" className="btn btn-primary btn-lg">
-            {t('admin.parts.add')}
-          </Link>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            <Link to="/admin/parts/import" className="btn btn-outline btn-lg">
+              {t('admin.parts.batchImport')}
+            </Link>
+            <Link to="/admin/parts/new" className="btn btn-primary btn-lg">
+              {t('admin.parts.add')}
+            </Link>
+          </div>
         </div>
 
         <div className="toolbar" style={{ alignItems: 'center', gap: 12 }}>
@@ -103,6 +143,22 @@ export default function AdminParts() {
             {[12, 20, 40].map((size) => (
               <option key={size} value={size}>
                 {size}
+              </option>
+            ))}
+          </select>
+          <select
+            className="select"
+            value={publicationStatus}
+            onChange={(event) => {
+              setPublicationStatus(event.target.value);
+              setPage(1);
+            }}
+            aria-label={t('admin.parts.statusFilter')}
+          >
+            <option value="">{t('admin.parts.allStatuses')}</option>
+            {PUBLICATION_STATUSES.map((status) => (
+              <option key={status} value={status}>
+                {t(`admin.status.${status}`)} ({publicationCounts[status] || 0})
               </option>
             ))}
           </select>
@@ -136,11 +192,19 @@ export default function AdminParts() {
                 <div className="admin-part-card-body">
                   <span className="part-code">{part.code}</span>
                   <span className="part-title">{field(part, 'title')}</span>
+                  <span
+                    className={`publication-badge status-${part.publication_status || 'published'}`}
+                  >
+                    {t(`admin.status.${part.publication_status || 'published'}`)}
+                  </span>
                   <div className="part-meta">
                     {part.brand_name_en && <span className="tag">{part.brand_name_en}</span>}
                     {part.category_name_en && <span className="tag">{part.category_name_en}</span>}
                   </div>
                   <div className="admin-actions" style={{ marginTop: 12 }}>
+                    <Link to={`/admin/parts/${part.id}/preview`} className="btn btn-outline btn-lg">
+                      {t('admin.preview.action')}
+                    </Link>
                     <Link
                       to={`/admin/parts/${part.id}`}
                       className="btn btn-outline btn-lg"
@@ -148,6 +212,20 @@ export default function AdminParts() {
                     >
                       {t('admin.edit')}
                     </Link>
+                    <select
+                      className="select"
+                      value={part.publication_status || 'published'}
+                      aria-label={t('admin.parts.changeStatus')}
+                      onChange={(event) => setStatusTarget({ part, status: event.target.value })}
+                    >
+                      {allowedPublicationStatuses(part.publication_status || 'published').map(
+                        (status) => (
+                          <option key={status} value={status}>
+                            {t(`admin.status.${status}`)}
+                          </option>
+                        )
+                      )}
+                    </select>
                     <button
                       className="btn btn-danger btn-lg"
                       onClick={() => setDeleteTarget(part)}
@@ -196,6 +274,23 @@ export default function AdminParts() {
       >
         <p>{t('admin.deleteConfirm')}</p>
         {deleteTarget && <strong>{deleteTarget.code}</strong>}
+      </AccessibleDialog>
+      <AccessibleDialog
+        open={Boolean(statusTarget)}
+        title={t('admin.parts.statusConfirmTitle')}
+        confirmLabel={changingStatus ? t('admin.form.saving') : t('admin.parts.statusConfirm')}
+        cancelLabel={t('admin.form.cancel')}
+        destructive={statusTarget?.status === 'archived'}
+        busy={changingStatus}
+        onCancel={() => setStatusTarget(null)}
+        onConfirm={handleStatusChange}
+      >
+        <p>
+          {statusTarget &&
+            t('admin.parts.statusConfirmText')
+              .replace('{code}', statusTarget.part.code)
+              .replace('{status}', t(`admin.status.${statusTarget.status}`))}
+        </p>
       </AccessibleDialog>
     </div>
   );

@@ -18,8 +18,11 @@ const AdminMfa = lazy(() => import('./pages/admin/AdminMfa.jsx'));
 const AdminHome = lazy(() => import('./pages/admin/AdminHome.jsx'));
 const AdminParts = lazy(() => import('./pages/admin/AdminParts.jsx'));
 const AdminPartForm = lazy(() => import('./pages/admin/AdminPartForm.jsx'));
+const AdminPartPreview = lazy(() => import('./pages/admin/AdminPartPreview.jsx'));
+const AdminBatchImport = lazy(() => import('./pages/admin/AdminBatchImport.jsx'));
 const AdminBrands = lazy(() => import('./pages/admin/AdminBrands.jsx'));
 const AdminCategories = lazy(() => import('./pages/admin/AdminCategories.jsx'));
+const AdminVehicleModels = lazy(() => import('./pages/admin/AdminVehicleModels.jsx'));
 
 function PublicLayout({ children }) {
   const { t } = useLang();
@@ -63,7 +66,7 @@ function DocumentMetadata() {
               ? 'meta.services'
               : pathname.startsWith('/about')
                 ? 'meta.about'
-              : 'meta.notFound';
+                : 'meta.notFound';
     document.title = `${t(key)} | SEBATECH`;
     document
       .querySelector('meta[name="description"]')
@@ -172,11 +175,31 @@ export default function App() {
           }
         />
         <Route
+          path="/admin/parts/import"
+          element={
+            <Protected>
+              <Deferred>
+                <AdminBatchImport />
+              </Deferred>
+            </Protected>
+          }
+        />
+        <Route
           path="/admin/parts/:id"
           element={
             <Protected>
               <Deferred>
                 <AdminPartForm />
+              </Deferred>
+            </Protected>
+          }
+        />
+        <Route
+          path="/admin/parts/:id/preview"
+          element={
+            <Protected>
+              <Deferred>
+                <AdminPartPreview />
               </Deferred>
             </Protected>
           }
@@ -197,6 +220,16 @@ export default function App() {
             <Protected>
               <Deferred>
                 <AdminCategories />
+              </Deferred>
+            </Protected>
+          }
+        />
+        <Route
+          path="/admin/vehicle-models"
+          element={
+            <Protected>
+              <Deferred>
+                <AdminVehicleModels />
               </Deferred>
             </Protected>
           }
